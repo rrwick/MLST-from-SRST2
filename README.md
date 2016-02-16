@@ -1,8 +1,8 @@
 # MLST from SRST2
 
-This tool uses a table of compiled results from SRST2 to create an MLST-like scheme.  Each sample in the file will be a assigned a sequence type
+This tool uses a table of compiled results from [SRST2](https://github.com/katholt/srst2) to create an MLST-like scheme.  Each sample in the file will be assigned a sequence type number based on its combination of alleles for a set of genes.
 
-Usage:
+## Usage:
 ```
 mlst_from_srst2.py [-h] --srst2_table SRST2_TABLE
                    [--existing_scheme EXISTING_SCHEME]
@@ -10,7 +10,7 @@ mlst_from_srst2.py [-h] --srst2_table SRST2_TABLE
                    --out_scheme OUT_SCHEME
 ```
 
-## Input
+### Input
 
 This script requires a compiled table of results from SRST2.  The first column should be sample names and remaining columns are gene clusters where the cells contain specific alleles.
 
@@ -36,7 +36,7 @@ If you already have a scheme for a set of genes (produced by a previous run of t
 Example:
 `mlst_from_srst2.py --srst2_table input_table.txt --existing_scheme old_scheme.txt --out_types sample_results.txt --out_scheme new_scheme.txt`
 
-## Output
+### Output
 
 This script produces two output files: the MLST scheme file and the sequence type assignments for each sample.
 
