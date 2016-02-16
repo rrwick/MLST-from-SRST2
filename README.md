@@ -27,6 +27,7 @@ sample3 | abcA_2 | abcB_1 | abcC_1 | abcD_3
 If you do not already have a scheme for a set of genes, you can create one by using the `--mlst_genes` argument: a comma-delimited list of the genes (i.e. SRST2 clusters) you want to use in your scheme.
 
 Example:
+
 `mlst_from_srst2.py --srst2_table input_table.txt --mlst_genes abcA,abcB,abcC --out_types sample_results.txt --out_scheme mlst_scheme.txt`
 
 #### Expanding an existing scheme
@@ -34,6 +35,7 @@ Example:
 If you already have a scheme for a set of genes (produced by a previous run of this script), it is given with the `--mlst_genes` argument.  This scheme will be expanded upon if your samples contain new allele combinations.
 
 Example:
+
 `mlst_from_srst2.py --srst2_table input_table.txt --existing_scheme old_scheme.txt --out_types sample_results.txt --out_scheme new_scheme.txt`
 
 ### Output
