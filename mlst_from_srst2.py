@@ -83,11 +83,11 @@ def main():
 def get_arguments():
     parser = argparse.ArgumentParser(description='MLST from SRST2')
 
-    parser.add_argument('--srst2_table', type=str, required=True, help='Table of SRST2 results')
-    parser.add_argument('--existing_scheme', type=str, required=False, help='Existing MLST scheme')
-    parser.add_argument('--mlst_genes', type=str, required=False, help='Comma-delimited list of genes to use in new scheme')
-    parser.add_argument('--out_types', type=str, required=True, help='Output file of sample type assignments')
-    parser.add_argument('--out_scheme', type=str, required=True, help='Output file of updated MLST scheme')
+    parser.add_argument('-s', '--srst2_table', type=str, required=True, help='Table of SRST2 results')
+    parser.add_argument('-e', '--existing_scheme', type=str, required=False, help='Existing MLST scheme')
+    parser.add_argument('-g', '--mlst_genes', type=str, required=False, help='Comma-delimited list of genes to use in new scheme')
+    parser.add_argument('-t', '--out_types', type=str, required=True, help='Output file of sample type assignments')
+    parser.add_argument('-o', '--out_scheme', type=str, required=True, help='Output file of updated MLST scheme')
 
     args = parser.parse_args()
 
