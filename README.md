@@ -17,7 +17,7 @@ This script requires a compiled table of results from SRST2.  The first column s
 Example SRST2 input table:
 
 Sample | abcA | abcB | abcC | abcD
---- | --- | --- | --- | ---
+:---: | :---: | :---: | :---: | :---:
 sample1 | abcA_1 | abcB_1 | abcC_1 | abcD_1
 sample2 | abcA_2 | abcB_1 | abcC_1 | abcD_1
 sample3 | abcA_2 | abcB_1 | abcC_1 | abcD_3
@@ -45,7 +45,7 @@ This script produces two output files: the MLST scheme file and the sequence typ
 #### Example MLST scheme output
 
 ST | abcA | abcB | abcC | abcD
---- | --- | --- | --- | ---
+:---: | :---: | :---: | :---: | :---:
 1 | abcA_1 | abcB_1 | abcC_1 | abcD_1
 2 | abcA_2 | abcB_1 | abcC_1 | abcD_1
 3 | abcA_1 | abcB_3 | abcC_1 | abcD_1
@@ -54,7 +54,7 @@ ST | abcA | abcB | abcC | abcD
 #### Example sequence type assignment output
 
 Sample | ST | alleles
---- | --- | ---
+:---: | :---: | :---:
 sample1 | 1 | abcA_1,abcB_1,abcC_1,abcD_1
 sample2 | 2 | abcA_2,abcB_1,abcC_1,abcD_1
 sample3 | 4 | abcA_2,abcB_1,abcC_1,abcD_3
