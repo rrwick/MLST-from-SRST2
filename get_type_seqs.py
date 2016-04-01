@@ -12,14 +12,17 @@ email: rrwick@gmail.com
 from __future__ import print_function
 from __future__ import division
 import argparse
-from itertools import groupby
-from mlst_from_srst2 import *
-
-
+import subprocess
+from mlst_from_srst2 import MlstScheme, quit_with_error
 
 def main():
+    '''
+    Script execution starts here.
+    '''
     args = get_arguments()
-    gene_seqs = load_fasta_as_dict(args.gene_seqs)
+    if args.align and not find_program('muscle'):
+        quit_with_error('Muscle must be installed to produce an aligned output.')
+    gene_seqs = dict(load_fasta_file(args.gene_seqs))
     mlst = MlstScheme(scheme_table=args.scheme)
     seqs_by_type_and_gene = {} # key = ST value = list of gene sequences
     for st_num in get_types(args, mlst):
@@ -33,7 +36,6 @@ def main():
         seqs_by_type_and_gene = align_seqs(seqs_by_type_and_gene)
     cat_seqs = sorted([(st, ''.join(seqs)) for st, seqs in seqs_by_type_and_gene.iteritems()])
     save_fasta(cat_seqs, args.out)
-
 
 def get_arguments():
     '''
@@ -82,24 +84,31 @@ def get_types(args, mlst):
         quit_with_error('Not all sequence types are unique (there are duplicates).')
     return types
 
-def align_seqs(seqs_by_type_and_gene):
+def align_seqs(seqs_by_type):
     '''
     Uses Muscle to align the sequences. Alignments are performed independently for each gene (the
     sequences will be concatenated later).
     '''
-    # TO DO
-    # TO DO
-    # TO DO
-    # TO DO
-    # TO DO
-    # TO DO
-    return aligned_seqs
-
-def load_fasta_as_dict(fasta_filename):
-    '''
-    Returns the contents of the FASTA file as a dictionary where Key = header and Value = sequence.
-    '''
-    return dict(fasta_iter(fasta_filename))
+    st_nums = seqs_by_type.keys()
+    aligned_seqs_by_type = {st_num: [] for st_num in st_nums}
+    gene_count = len(seqs_by_type.itervalues().next())
+    for i in range(gene_count):
+        gene_seqs = [(st_num, seqs[i]) for st_num, seqs in seqs_by_type.iteritems()]
+        muscle_input = ''
+        for gene_seq in gene_seqs:
+            muscle_input += '>' + str(gene_seq[0]) + '\n'
+            muscle_input += add_line_breaks_to_sequence(gene_seq[1], 60)
+        command = ['muscle']
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        muscle_output, err = process.communicate(input=muscle_input)
+        if '*** ERROR ***' in err:
+            muscle_error = err.split('*** ERROR ***')[1].strip()
+            quit_with_error('Muscle alignment failed\n' + muscle_error)
+        aligned_seqs = load_fasta_lines(muscle_output)
+        for st_num, seq in aligned_seqs:
+            aligned_seqs_by_type[int(st_num)].append(seq)
+    return aligned_seqs_by_type
 
 def string_to_int(int_str):
     '''
@@ -112,16 +121,47 @@ def string_to_int(int_str):
     except ValueError:
         return None
 
-def fasta_iter(fasta_filename):
+def load_fasta_file(filename): # type: (str) -> list[tuple[str, str]]
     '''
-    https://www.biostars.org/p/710/
+    Returns the names and sequences for the given fasta file.
     '''
-    fasta = open(fasta_filename)
-    faiter = (x[1] for x in groupby(fasta, lambda line: line[0] == '>'))
-    for header in faiter:
-        header = header.next()[1:].strip()
-        seq = ''.join(s.strip() for s in faiter.next())
-        yield header, seq
+    fasta_file = open(filename, 'r')
+    return load_fasta_lines(fasta_file.read())
+
+def load_fasta_lines(fasta_str): # type: (str) -> list[tuple[str, str]]
+    '''
+    Takes as input a single string for the whole FASTA file.
+    '''
+    fasta_seqs = []
+    name = ''
+    sequence = ''
+    for line in line_iterator(fasta_str):
+        line = line.strip()
+        if not line:
+            continue
+        if line[0] == '>': # Header line = start of new contig
+            if name:
+                fasta_seqs.append((name.split()[0], sequence))
+                name = ''
+                sequence = ''
+            name = line[1:]
+        else:
+            sequence += line
+    if name:
+        fasta_seqs.append((name.split()[0], sequence))
+    return fasta_seqs
+
+def line_iterator(string_with_line_breaks):
+    '''
+    Iterates over a string containing line breaks, one line at a time.
+    '''
+    prev_newline = -1
+    while True:
+        next_newline = string_with_line_breaks.find('\n', prev_newline + 1)
+        if next_newline < 0:
+            break
+        yield string_with_line_breaks[prev_newline + 1:next_newline]
+        prev_newline = next_newline
 
 def save_fasta(st_seqs, filename):
     '''
@@ -145,6 +185,14 @@ def add_line_breaks_to_sequence(sequence, length):
         seq_with_breaks += sequence
         seq_with_breaks += '\n'
     return seq_with_breaks
+
+def find_program(name): # type: (str) -> bool
+    '''
+    Checks to see if a program exists.
+    '''
+    process = subprocess.Popen(['which', name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    return bool(out) and not bool(err)
 
 if __name__ == '__main__':
     main()
