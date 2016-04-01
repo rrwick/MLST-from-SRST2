@@ -4,10 +4,8 @@ This tool uses a table of compiled results from [SRST2](https://github.com/katho
 
 ## Usage:
 ```
-mlst_from_srst2.py [-h] --srst2_table SRST2_TABLE
-                   [--existing_scheme EXISTING_SCHEME]
-                   [--mlst_genes MLST_GENES] --out_types OUT_TYPES
-                   --out_scheme OUT_SCHEME
+mlst_from_srst2.py [-h] -s SRST2_TABLE [-e EXISTING_SCHEME]
+                   [-g MLST_GENES] -t OUT_TYPES -o OUT_SCHEME
 ```
 
 ## Input
