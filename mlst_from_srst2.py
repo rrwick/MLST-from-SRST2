@@ -27,27 +27,17 @@ def main():
     failed_type_assignments = 0
 
     with open(args.srst2_table, 'r') as table:
-
-        # Read the first line of the SRST2 table and build a dictionary of
-        # column number -> gene (cluster) name
-        first_line = table.readline()
-        table = open(args.srst2_table, 'r')
-        first_line = table.readline()
-        line_parts = first_line.strip().split('\t')
-        gene_columns = {}
-        for i in range(1, len(line_parts)):
-            gene_columns[i] = line_parts[i]
-
-        # Read each sample line in the SRST2 table and get its sequence type.
+        gene_columns = get_column_headers(table.readline())
         for line in table:
             line_parts = line.strip().split('\t')
-            assert len(line_parts) <= len(gene_columns) + 1
-            sample = line_parts[0]
+            if len(line_parts) > len(gene_columns):
+                quit_with_error('The SRST2 table is missing column headers')
             sample_alleles = {}
-            for i in range(1, len(line_parts)):
-                gene = gene_columns[i]
-                allele = line_parts[i]
-                sample_alleles[gene] = allele
+            for i, part in enumerate(line_parts):
+                if i == 0:
+                    sample = part
+                else:
+                    sample_alleles[gene_columns[i]] = part
             sequence_type, status, allele_list = mlst.get_sequence_type(sample_alleles)
             sample_types.write(sample + '\t' + str(sequence_type) + '\t' + allele_list + '\n')
             if status == 'existing':
@@ -57,11 +47,9 @@ def main():
             elif status == 'fail':
                 failed_type_assignments += 1
 
-    # Write the new MLST scheme to file.
     new_scheme = open(args.out_scheme, 'w')
     new_scheme.write(str(mlst))
 
-    # Output results to user.
     successes = existing_type_assignments + new_type_assignments
     if successes:
         plural = ('' if successes == 1 else 's')
@@ -76,6 +64,14 @@ def main():
         print('Created ' + str(new_type_assignments) + ' new sequence type' + plural)
     else:
         print('All assigned sequence types were previously known (MLST scheme is unchanged)')
+
+def get_column_headers(header_line):
+    '''
+    Given a header line from an SRST2 table, this function returns a dictionary of the column
+    headers with key = column number and value = column name.
+    '''
+    line_parts = header_line.strip().split('\t')
+    return {i: part for i, part in enumerate(line_parts)}
 
 def get_arguments():
     '''
