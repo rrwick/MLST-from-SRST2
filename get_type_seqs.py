@@ -24,6 +24,7 @@ def main():
     if args.align and not find_program('muscle'):
         quit_with_error('Muscle must be installed to produce an aligned output.')
     gene_seqs = dict(load_fasta_file(args.gene_seqs))
+    gene_seqs = {fix_allele_name(name): seq for name, seq in gene_seqs.iteritems()}
     mlst = MlstScheme(scheme_table=args.scheme)
     seqs_by_type_and_gene = {} # key = ST value = list of gene sequences
     for st_num in get_types(args, mlst):
@@ -213,6 +214,16 @@ def find_program(name): # type: (str) -> bool
     process = subprocess.Popen(['which', name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
     return bool(out) and not bool(err)
+
+def fix_allele_name(allele_name):
+    '''
+    This function checks to see whether the allele names appear to be in an SRST2-style format. If
+    so, only the third part (allele name) is kept.
+    '''
+    if allele_name.count('__') == 3:
+        return allele_name.split('__')[2]
+    else:
+        return allele_name
 
 if __name__ == '__main__':
     main()
