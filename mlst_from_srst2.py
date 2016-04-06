@@ -35,9 +35,9 @@ def main():
             sample_alleles = {}
             for i, part in enumerate(line_parts):
                 if i == 0:
-                    sample = part
+                    sample = part.strip()
                 else:
-                    sample_alleles[gene_columns[i]] = part
+                    sample_alleles[gene_columns[i]] = part.strip()
             sequence_type, status, allele_list = mlst.get_sequence_type(sample_alleles)
             sample_types.write(sample + '\t' + str(sequence_type) + '\t' + allele_list + '\n')
             if status == 'existing':
@@ -71,7 +71,7 @@ def get_column_headers(header_line):
     headers with key = column number and value = column name.
     '''
     line_parts = header_line.strip().split('\t')
-    return {i: part for i, part in enumerate(line_parts)}
+    return {i: part.strip() for i, part in enumerate(line_parts)}
 
 def get_arguments():
     '''
